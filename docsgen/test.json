@@ -1,0 +1,26 @@
+{
+  "context": {
+    "date": "2024-05-19T08:04:28+00:00",
+    "host_name": "xsmall-amd64-c3-org-runner-default-config-xp79s-chk7b",
+    "executable": "build/MPCEngineBM",
+    "num_cpus": 1,
+    "mhz_per_cpu": 2900,
+    "cpu_scaling_enabled": false
+  },
+  "benchmarks": [
+    {
+      "name": "Core/BN/ModAdd/256",
+      "family_index": 0,
+      "per_family_instance_index": 0,
+      "run_name": "Core/BN/ModAdd/256",
+      "run_type": "iteration",
+      "repetitions": 1,
+      "repetition_index": 0,
+      "threads": 1,
+      "iterations": 13050097,
+      "real_time": 5.2779717346088042e+01,
+      "cpu_time": 5.2012773085134924e+01,
+      "time_unit": "ns"
+    }
+  ]
+}

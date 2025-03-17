@@ -1,0 +1,302 @@
+{{ define "2pc-table" }}
+
+{{ range $table := .Table2PCs }}
+<div class="shadow-md mb-4">
+    <!-- <h3 class="text-xl font-bold mt-4 mb-2">{{ .Name }}</h3> -->
+
+    <!-- Alpine.js state: open2pc controls showing/hiding the collapsed rows. -->
+    <div x-data="{ open2pc: false }">
+        <table class="w-full text-sm text-left text-gray-500">
+            <!-- Table Header -->
+            <thead class="text-xs uppercase bg-gray-50">
+                <tr>
+                    <!-- Left label column header -->
+                    <th scope="col" class="text-xl font-bold mt-4 mb-2 px-6 py-3">{{ .Name }}</th>
+                    <!-- 3 columns: P1, msg, P2 -->
+                    <th scope="col" class="px-6 py-3">P1</th>
+                    <th scope="col" class="px-6 py-3">msg</th>
+                    <th scope="col" class="px-6 py-3">P2</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- 1) Always-visible first row: 'Total Time' -->
+                <tr class="
+                    border-b 
+                    hover:bg-blue-100 
+                    bg-blue-50 
+                    text-blue-800">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        Total Time
+                    </th>
+                    <!-- P1 total -->
+                    <td scope="row" class="px-6 py-4 font-medium whitespace-nowrap">
+                        <div class="tooltip">
+                            {{ .P1Total.Value }}
+                            <!-- Optional tooltip block -->
+                            {{ if .P1Total.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ .P1Total.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ .P1Total.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ .P1Total.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ .P1Total.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    <!-- msg col empty -->
+                    <td class="px-6 py-4"></td>
+                    <!-- P2 total -->
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ .P2Total.Value }}
+                            {{ if .P2Total.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ .P2Total.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ .P2Total.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ .P2Total.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ .P2Total.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- 2) Collapsed rows for r rounds => (round i+1, message i+1) -->
+                {{ $r := len .P1Times }}
+                {{ range $i, $dummy := .P1Times }}
+                <!-- round i+1 row -->
+                <tr x-show="open2pc" class="
+                        border-b$
+                        hover:bg-green-100 
+                        bg-green-50$
+                        text-green-800">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        round {{ inc $i }}
+                    </th>
+                    <!-- P1Times[i] -->
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ (index $table.P1Times $i).Value }}
+                            {{ if (index $table.P1Times $i).Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ (index $table.P1Times $i).Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ (index $table.P1Times $i).Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ (index $table.P1Times $i).Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ (index $table.P1Times $i).Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    <!-- msg col empty -->
+                    <td class="px-6 py-4"></td>
+                    <!-- P2Times[i] -->
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ (index $table.P2Times $i).Value }}
+                            {{ if (index $table.P2Times $i).Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ (index $table.P2Times $i).Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ (index $table.P2Times $i).Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ (index $table.P2Times $i).Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ (index $table.P2Times $i).Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- message i+1 row -->
+                <tr x-show="open2pc" class="
+                        bg-white border-b 
+                        hover:bg-gray-50 
+                        text-s opacity-80 leading-none">
+                    <th scope="row" class="px-6 py-1 font-medium text-gray-900 whitespace-nowrap">
+                        message {{ inc $i }}
+                    </th>
+                    <!-- P1 col empty -->
+                    <td class="px-6 py-1"></td>
+                    <!-- Msgs[i] in 'msg' col -->
+                    <td class="px-6 py-1">
+                        <div class="tooltip">
+                            {{ (index $table.Msgs $i).Value }}
+                            {{ if (index $table.Msgs $i).Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ (index $table.Msgs $i).Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ (index $table.Msgs $i).Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ (index $table.Msgs $i).Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ (index $table.Msgs $i).Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    <!-- P2 col empty -->
+                    <td class="px-6 py-1"></td>
+                </tr>
+                {{ end }}
+
+                <!-- 3) Final row => "output round" or .HeaderCell -->
+                <tr x-show="open2pc" class="
+                        border-b$
+                        hover:bg-green-100 
+                        bg-green-50$
+                        text-green-800">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        Output Round
+                    </th>
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ $table.P1OutputRound.Value }}
+                            {{ if $table.P1OutputRound.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $table.P1OutputRound.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $table.P1OutputRound.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $table.P1OutputRound.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $table.P1OutputRound.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    <!-- msg col empty -->
+                    <td class="px-6 py-4"></td>
+                    <!-- .P2Total again? -->
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ $table.P2OutputRound.Value }}
+                            {{ if $table.P2OutputRound.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $table.P2OutputRound.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $table.P2OutputRound.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $table.P2OutputRound.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $table.P2OutputRound.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Toggle button to expand/collapse the hidden rows -->
+        <div class="flex justify-center mt-2">
+            <button type="button" @click="open2pc = !open2pc" x-text="open2pc ? 'Hide round details' : 'Show round details'" class="inline-flex items-center mt-2 mb-4 px-3 py-2 text-sm font-medium 
+                     text-white bg-blue-500 rounded-lg hover:bg-blue-600 
+                     focus:ring-4 focus:outline-none focus:ring-blue-300">
+            </button>
+        </div>
+    </div>
+</div>
+{{ end }}
+{{ end }}

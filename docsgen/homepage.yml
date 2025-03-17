@@ -1,0 +1,663 @@
+benchmarks:
+  - category: "Basic Operation"
+    expansions:
+      - name: "Big Number"
+        key_prefix: "Core/BN"
+        header_row_strings: ["Operation \\ Bit Length", "256", "512", "1024", "2048", "4096"]
+        column_keys: ["256", "512", "1024", "2048", "4096"]
+        header_column_strings: ["Mod Add", "Mod Sub", "Mod Mul", "Mod Exponentiate", "Mod Invert", "GCD", "GCD with RSA Modulus", "Batch(16) GCD with RSA Modulus"]
+        row_keys: ["ModAdd", "ModSubtract", "ModMultiply", "ModExponentiate", "ModInvert", "GCD", "GCD-RSA-Modulus", "GCD-Batch(16)RSA-Modulus"]
+        unit: "us"
+      - name: "Elliptic Curve"
+        key_prefix: "Core/EC"
+        header_row_strings: ["Operation \\ Curve", "secp256k1", "Ed25519"]
+        column_keys: ["secp256k1", "Ed25519"]
+        header_column_strings: ["Add", "Multiply", "Multiply Generator", "MulAdd"]
+        row_keys: ["Add", "Multiply", "Multiply_G", "MulAdd"]
+        unit: "us"
+  - category: "Crypto -- Symmetric"
+    expansions:
+      - name: "Symmetric"
+        key_prefix: "Core/Hash"
+        header_row_strings: ["Operation \\ #Blocks", "1", "4", "16", "64", "256", "1024", "4096"]
+        column_keys: ["1", "4", "16", "64", "256", "1024", "4096"]
+        header_column_strings: ["SHA256", "HMAC-SHA256", "AES-GCM-128", "AES-GCM-256"]
+        row_keys: ["SHA256", "HMAC-SHA256", "AES-GCM-128", "AES-GCM-256"]
+        unit: "us"
+  - category: "Crypto - Public Key Encryption"
+    expansions:
+      - name: "ElGamal Commitment"
+        key_prefix: "BP/ElGamal"
+        header_row_strings: ["Operation \\ Curve", "secp256k1", "Ed25519"]
+        column_keys: ["3", "4"]
+        header_column_strings: ["Trusted Key Gen", "Commit", "Rerand", "Add", "Add Scalar", "Mul Scalar"]
+        row_keys: ["TrustedKeyGen", "Commit", "Rerand", "Add", "AddScalar", "MulScalar"]
+        unit: "us"
+      - name: "Paillier"
+        key_prefix: "BP/Paillier"
+        header_row_strings: ["Operation \\ Bit length", "2048 bits"]
+        column_keys: [""]
+        header_column_strings: ["Generate Key", "Encrypt (with private key)", "Encrypt", "Decrypt", "Addition", "Add-Scalar", "Mul-Scalar"]
+        row_keys: ["Gen", "Enc", "Pub-Enc", "Dec", "Add", "Add-Scalar", "Mul-Scalar"]
+        unit: "ms"
+      - name: "TDH2"
+        key_prefix: ""
+        header_row_strings: ["n / plaintext size", "4, 256", "30, 256", "4, 65536", "30, 65536"]
+        column_keys: ["4/256", "30/256", "4/65536", "30/65536"]
+        header_column_strings: ["Encrypt", "Verify", "Local Decrypt", "Combine"]
+        row_keys: ["tdh2-encrypt-1P", "tdh2-verify-1P", "tdh2-local-decrypt-1P", "tdh2-combine-1P"]
+        unit: "us"
+  - category: "Crypto -- DRBG"
+    expansions:
+      - name: "String"
+        key_prefix: "Crypto/DRBG"
+        header_row_strings: ["Bit Length", "1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144"]
+        column_keys: ["1024", "2048", "4096", "8192", "16384", "32768", "65536", "131072", "262144"]
+        header_column_strings: ["DRBG-String"]
+        row_keys: ["String"]
+        unit: "us"
+      - name: "Number"
+        key_prefix: "Crypto/DRBG"
+        header_row_strings: ["Bit Length", "256", "512", "1024", "2048", "4096"]
+        column_keys: ["256", "512", "1024", "2048", "4096"]
+        header_column_strings: ["DRBG-Number"]
+        row_keys: ["Number"]
+        unit: "us"
+      - name: "Curve"
+        key_prefix: "Crypto/DRBG"
+        header_row_strings: ["Curve", "secp256k1", "Ed25519"]
+        column_keys: ["3", "4"]
+        header_column_strings: ["DRBG-Curve"]
+        row_keys: ["Curve"]
+        unit: "us"
+  - category: "Commitment"
+    expansions:
+      - name: "HMAC"
+        key_prefix: "Crypto/Commitment"
+        header_row_strings: ["#big number", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20"]
+        column_keys: ["2", "4", "6", "8", "10", "12", "14", "16", "18", "20"]
+        header_column_strings: ["Commit"]
+        row_keys: ["ComBn"]
+        unit: "us"
+      - name: "Pedersen"
+        key_prefix: "Crypto"
+        header_row_strings: ["Curve", "secp256k1", "Ed25519"]
+        column_keys: ["3", "4"]
+        header_column_strings: ["Commit"]
+        row_keys: ["PedersenCommitment"]
+        unit: "us"
+      - name: "ElGamal"
+        key_prefix: "BP/ElGamal"
+        header_row_strings: ["Operation \\ Curve", "secp256k1", "Ed25519"]
+        column_keys: ["3", "4"]
+        header_column_strings: ["Trusted Key Gen", "Commit", "Rerand", "Add", "Add Scalar", "Mul Scalar"]
+        row_keys: ["TrustedKeyGen", "Commit", "Rerand", "Add", "AddScalar", "MulScalar"]
+        unit: "us"
+  - category: "Secret Sharing"
+    expansions:
+      - name: "Shamir Secret Sharing"
+        key_prefix: "BP/Share/Shamir"
+        header_row_strings: ["m\\n", "2", "3", "4", "5", "6", "7"]
+        column_keys: ["2", "3", "4", "5", "6", "7"]
+        header_column_strings: ["10", "20", "30"]
+        row_keys: ["10", "20", "30"]
+        unit: "us"
+      - name: "Horner's rule"
+        key_prefix: "BP/Share"
+        header_row_strings: ["m\\n", "3", "4", "6", "8", "10", "16", "32"]
+        column_keys: ["3", "4", "6", "8", "10", "16", "32"]
+        header_column_strings: ["256 bit field", "secp256k1", "Ed25519"]
+        row_keys: ["Horner", "ECHorner/3", "ECHorner/4"]
+        unit: "us"
+      - name: "Lagrange interpolation"
+        key_prefix: "BP/Share"
+        header_row_strings: ["m\\n", "3", "4", "6", "8", "10", "16", "32"]
+        column_keys: ["3", "4", "6", "8", "10", "16", "32"]
+        header_column_strings: ["256 bit field", "secp256k1", "Ed25519"]
+        row_keys: ["Lagrange", "ECLagrange/3", "ECLagrange/4"]
+        unit: "us"
+  - category: "Zero Knowledge"
+    tables:
+      - name: "Non-interactive Zero Knowledge"
+        headerStrings: ["Protocol", "Prover", "Verifer", "Proof Size"]
+        rows:
+          - name: "UC DL (secp256k1)"
+            cells:
+              - source: "ZK/DL/Prover/3"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/3"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/3"
+                value_type: "KB"
+          - name: "UC DL (Ed25519)"
+            cells:
+              - source: "ZK/DL/Prover/4"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/4"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/4"
+                value_type: "KB"
+          - name: "DH (secp256k1)"
+            cells:
+              - source: "ZK/DH/Prove/3"
+                value_type: "ms"
+              - source: "ZK/DH/Verify/3"
+                value_type: "ms"
+              - source: "ZK/DH/Verify/3"
+                value_type: "KB"
+          - name: "ElGamal Com (secp256k1)"
+            cells:
+              - source: "ZK/ElGamalCom/Prover/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalCom/Verify/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalCom/Verify/3"
+                value_type: "KB"
+          - name: "ElGamal Public Share Equal (secp256k1)"
+            cells:
+              - source: "ZK/ElGamalPubShareEqual/Prover/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalPubShareEqual/Verify/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalPubShareEqual/Verify/3"
+                value_type: "KB"
+          - name: "ElGamal Com Mult (secp256k1)"
+            cells:
+              - source: "ZK/ElGamalComMult/Prover/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalComMult/Verify/3"
+                value_type: "ms"
+              - source: "ZK/ElGamalComMult/Verify/3"
+                value_type: "KB"
+          - name: "UC ElGamal Com Mult Private Scalar (secp256k1)"
+            cells:
+              - source: "ZK/UCElGamalComMultPrivScalar/Prover/3"
+                value_type: "ms"
+              - source: "ZK/UCElGamalComMultPrivScalar/Verify/3"
+                value_type: "ms"
+              - source: "ZK/UCElGamalComMultPrivScalar/Verify/3"
+                value_type: "KB"
+          - name: "Valid Paillier"
+            cells:
+              - source: "ZK/ValidPaillier/Prover"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier/Verify"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier/Verify"
+                value_type: "KB"
+          - name: "Paillier Zero"
+            cells:
+              - source: "ZK/PaillierZero/Prover"
+                value_type: "ms"
+              - source: "ZK/PaillierZero/Verify"
+                value_type: "ms"
+              - source: "ZK/PaillierZero/Verify"
+                value_type: "KB"
+          - name: "Two Paillier Equal"
+            cells:
+              - source: "ZK/TwoPaillierEqual/Prover"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual/Verify"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual/Verify"
+                value_type: "KB"
+          - name: "Range Pedersen (secp256k1)"
+            cells:
+              - source: "ZK/RangePedersen/Prover/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersen/Verify/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersen/Verify/3"
+                value_type: "KB"
+          - name: "Paillier Pedersen Equal (secp256k1)"
+            cells:
+              - source: "ZK/PaillierPedersenEq/Prover/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq/Verify/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq/Verify/3"
+                value_type: "KB"
+          - name: "Paillier Range Exp Slack (secp256k1)"
+            cells:
+              - source: "ZK/PaillierRangeExpSlack/Prover/3"
+                value_type: "ms"
+              - source: "ZK/PaillierRangeExpSlack/Verify/3"
+                value_type: "ms"
+              - source: "ZK/PaillierRangeExpSlack/Verify/3"
+                value_type: "KB"
+          - name: "PDL"
+            cells:
+              - source: "ZK/PDL/Prover"
+                value_type: "ms"
+              - source: "ZK/PDL/Verify"
+                value_type: "ms"
+              - source: "ZK/PDL/Verify"
+                value_type: "KB"
+          - name: "Unknown Order DL"
+            cells:
+              - source: "ZK/UnknownOrderDL/Prove"
+                value_type: "ms"
+              - source: "ZK/UnknownOrderDL/Verify"
+                value_type: "ms"
+              - source: "ZK/UnknownOrderDL/Verify"
+                value_type: "KB"
+      - name: "Batched UC ZK-DL"
+        headerStrings: ["Protocol", "Prover", "Verifer", "Proof Size"]
+        rows:
+          - name: "secp256k1, n = 1"
+            cells:
+              - source: "ZK/DL/Prover/3"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/3"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/3"
+                value_type: "KB"
+          - name: "secp256k1, n = 4"
+            cells:
+              - source: "ZK/Batch-DL/Prover/3/4"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/4"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/4"
+                value_type: "KB"
+          - name: "secp256k1, n = 16"
+            cells:
+              - source: "ZK/Batch-DL/Prover/3/16"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/16"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/16"
+                value_type: "KB"
+          - name: "secp256k1, n = 64"
+            cells:
+              - source: "ZK/Batch-DL/Prover/3/64"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/64"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/3/64"
+                value_type: "KB"
+          - name: "Ed25519, n = 1"
+            cells:
+              - source: "ZK/DL/Prover/4"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/4"
+                value_type: "ms"
+              - source: "ZK/DL/Verify/4"
+                value_type: "KB"
+          - name: "Ed25519, n = 4"
+            cells:
+              - source: "ZK/Batch-DL/Prover/4/4"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/4"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/4"
+                value_type: "KB"
+          - name: "Ed25519, n = 16"
+            cells:
+              - source: "ZK/Batch-DL/Prover/4/16"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/16"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/16"
+                value_type: "KB"
+          - name: "Ed25519, n = 64"
+            cells:
+              - source: "ZK/Batch-DL/Prover/4/64"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/64"
+                value_type: "ms"
+              - source: "ZK/Batch-DL/Verify/4/64"
+                value_type: "KB"
+      - name: "Valid Paillier"
+        headerStrings: ["", "Challenge", "Challenge Size", "Prove", "Size", "Verify", "P Total", "V Total"]
+        rows:
+          - name: "Interactive"
+            cells:
+              - source: "ZK/ValidPaillier-Int/V1"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier-Int/P2"
+                value_type: "KB"
+              - source: "ZK/ValidPaillier-Int/P2"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier-Int/Verify"
+                value_type: "KB"
+              - source: "ZK/ValidPaillier-Int/Verify"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier-Int/P2"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier-Int/V1+ZK/ValidPaillier-Int/Verify"
+                value_type: "ms"
+          - name: "Non-Interactive"
+            cells:
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "ZK/ValidPaillier/Prover"
+                value_type: "ms"
+              - source: "ZK/ValidPaillier/Verify"
+                value_type: "ms"
+      - name: "Paillier Zero"
+        headerStrings: ["", "Prove Msg1", "Size", "Challenge", "Challenge Size", "Prove Msg2", "Size", "Verify", "P Total", "V Total"]
+        rows:
+          - name: "Interactive"
+            cells:
+              - source: "ZK/PaillierZero-Int/P1"
+                value_type: "ms"
+              - source: "ZK/PaillierZero-Int/V2"
+                value_type: "KB"
+              - source: "ZK/PaillierZero-Int/V2"
+                value_type: "ms"
+              - source: "ZK/PaillierZero-Int/P3"
+                value_type: "KB"
+              - source: "ZK/PaillierZero-Int/P3"
+                value_type: "ms"
+              - source: "ZK/PaillierZero-Int/Verify"
+                value_type: "KB"
+              - source: "ZK/PaillierZero-Int/Verify"
+                value_type: "ms"
+              - source: "ZK/PaillierZero-Int/P1+ZK/PaillierZero-Int/P3"
+                value_type: "ms"
+              - source: "ZK/PaillierZero-Int/V2+ZK/PaillierZero-Int/Verify"
+                value_type: "ms"
+          - name: "Non-Interactive"
+            cells:
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "ZK/PaillierZero/Prover"
+                value_type: "ms"
+              - source: "ZK/PaillierZero/Verify"
+                value_type: "ms"
+      - name: "Two Paillier Equal"
+        headerStrings: ["", "Prove Msg1", "Size", "Challenge", "Challenge Size", "Prove Msg2", "Size", "Verify", "P Total", "V Total"]
+        rows:
+          - name: "Interactive"
+            cells:
+              - source: "ZK/TwoPaillierEqual-Int/P1"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual-Int/V2"
+                value_type: "KB"
+              - source: "ZK/TwoPaillierEqual-Int/V2"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual-Int/P3"
+                value_type: "KB"
+              - source: "ZK/TwoPaillierEqual-Int/P3"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual-Int/Verify"
+                value_type: "KB"
+              - source: "ZK/TwoPaillierEqual-Int/Verify"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual-Int/P1+ZK/TwoPaillierEqual-Int/P3"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual-Int/V2+ZK/TwoPaillierEqual-Int/Verify"
+                value_type: "ms"
+          - name: "Non-Interactive"
+            cells:
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "ZK/TwoPaillierEqual/Prover"
+                value_type: "ms"
+              - source: "ZK/TwoPaillierEqual/Verify"
+                value_type: "ms"
+      - name: "Range Pedersen"
+        headerStrings: ["Protocol", "Prove Msg1", "Size", "Challenge", "Challenge Size", "Prove Msg2", "Size", "Verify", "P Total", "V Total"]
+        rows:
+          - name: "Interactive - secp256k1"
+            cells:
+              - source: "ZK/RangePedersenInt/P1/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersenInt/V2/3"
+                value_type: "KB"
+              - source: "ZK/RangePedersenInt/V2/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersenInt/P3/3"
+                value_type: "KB"
+              - source: "ZK/RangePedersenInt/P3/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersenInt/Verify/3"
+                value_type: "KB"
+              - source: "ZK/RangePedersenInt/Verify/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersenInt/P1/3+ZK/RangePedersenInt/P3/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersenInt/V2/3+ZK/RangePedersenInt/Verify/3"
+                value_type: "ms"
+          - name: "Non-Interactive"
+            cells:
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "ZK/RangePedersen/Prover/3"
+                value_type: "ms"
+              - source: "ZK/RangePedersen/Verify/3"
+                value_type: "ms"
+      - name: "Paillier Pedersen Equal"
+        headerStrings: ["Protocol", "Prove Msg1", "Size", "Challenge", "Challenge Size", "Prove Msg2", "Size", "Verify", "P Total", "V Total"]
+        rows:
+          - name: "Interactive - secp256k1"
+            cells:
+              - source: "ZK/PaillierPedersenEq-Int/P1/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq-Int/V2/3"
+                value_type: "KB"
+              - source: "ZK/PaillierPedersenEq-Int/V2/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq-Int/P3/3"
+                value_type: "KB"
+              - source: "ZK/PaillierPedersenEq-Int/P3/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq-Int/Verifier/3"
+                value_type: "KB"
+              - source: "ZK/PaillierPedersenEq-Int/Verifier/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq-Int/P1/3+ZK/PaillierPedersenEq-Int/P3/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq-Int/V2/3+ZK/PaillierPedersenEq-Int/Verifier/3"
+                value_type: "ms"
+          - name: "Non-Interactive"
+            cells:
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "N/A"
+                value_type: "string"
+              - source: "ZK/PaillierPedersenEq/Prover/3"
+                value_type: "ms"
+              - source: "ZK/PaillierPedersenEq/Verify/3"
+                value_type: "ms"
+  - category: "PVE (Publicly Verifiable Encryption)"
+    expansions:
+      - name: "PVE"
+        key_prefix: "PVE"
+        header_row_strings: ["Protocols \\ Operations", "Encrypt", "Verify", "Decrypt"]
+        column_keys: ["Encrypt", "Verify", "Decrypt"]
+        header_column_strings:
+          [
+            "Basic - RSA2048",
+            "Batch(4) - RSA2048",
+            "Batch(16) - RSA2048",
+            "Basic - P-256",
+            "Batch(4) - P-256",
+            "Batch(16) - P-256",
+            "Batch(2) Many (24-leaf access structure) -- mixed key",
+          ]
+        row_keys: ["vencrypt", "vencrypt-batch", "vencrypt-batch", "vencrypt", "vencrypt-batch", "vencrypt-batch", "vencrypt-batch-many"]
+        row_keys2: ["0", "0/4", "0/16", "1", "1/4", "1/16", ""]
+        unit: "ms"
+  - category: "OT (Oblivious Transfer)"
+    expansions:
+      - name: "Base OT"
+        key_prefix: "MPC/OT/BaseOT"
+        header_row_strings: ["Number of OTs", "64", "128", "256", "512", "1024", "2048"]
+        column_keys: ["64", "128", "256", "512", "1024", "2048"]
+        header_column_strings: ["Step 1 (R → S)", "Step 2 (S → R)", "Step 3 (R output)"]
+        row_keys: ["Step1_R2S", "Step2_S2R", "OutputR"]
+        unit: "ms"
+      - name: "Full OT (Base OT + OT Extension), 256 Base OTs"
+        key_prefix: "MPC/OT/FullOT"
+        header_row_strings: ["Number of OTs", "2048", "4096", "65536"]
+        column_keys: ["2048", "4096", "65536"]
+        header_column_strings: ["Step 1 (S → R)", "Step 2 (R → S)", "Step 3 (S → R)", "Step 4 (R output)"]
+        row_keys: ["Step1_S2R", "Step2_R2S", "Step3_S2R", "OutputR"]
+        unit: "ms"
+  - category: "2PC - Agree Random / Sid Generation"
+    expansions2pc:
+      - name: "Agree Random"
+        protocol_name: "AgreeRandom-2P"
+        n_rounds: 3
+        unit: "us"
+        msg_unit: "B"
+        variants: ["/256", "/1024", "/4096"]
+        variant_names: ["256 bits", "1024 bits", "4096 bits"]
+      - name: "Weak Agree Random"
+        protocol_name: "WeakAgreeRandom-2P"
+        n_rounds: 2
+        unit: "us"
+        msg_unit: "B"
+        variants: ["/256", "/1024", "/4096"]
+        variant_names: ["256 bits", "1024 bits", "4096 bits"]
+      - name: "Generate SID (Fixed)"
+        protocol_name: "GenerateSID-Fixed-2P"
+        n_rounds: 2
+        unit: "us"
+        msg_unit: "B"
+      - name: "Generate SID (Dynamic)"
+        protocol_name: "GenerateSID-Dynamic-2P"
+        n_rounds: 2
+        unit: "us"
+        msg_unit: "B"
+  - category: "EdDSA 2PC"
+    expansions2pc:
+      - name: "Keygen"
+        protocol_name: "Schnorr-2PC-KeyGen-2P"
+        n_rounds: 3
+        unit: "ms"
+        msg_unit: "KB"
+      - name: "Refresh"
+        protocol_name: "Schnorr-2PC-Refresh-2P"
+        n_rounds: 3
+        unit: "ms"
+        msg_unit: "KB"
+      - name: "Sign"
+        protocol_name: "Schnorr-2PC-Sign-2P"
+        n_rounds: 4
+        unit: "ms"
+        msg_unit: "KB"
+        variants: ["/1", "/4", "/16"]
+        variant_names: ["#Msg=1", "#Msg=4", "#Msg=16"]
+  - category: "ECDSA 2PC"
+    expansions2pc:
+      - name: "Keygen"
+        protocol_name: "ECDSA-2PC-KeyGen-2P"
+        n_rounds: 3
+        unit: "ms"
+        msg_unit: "KB"
+      - name: "Refresh"
+        protocol_name: "ECDSA-2PC-Refresh-2P"
+        n_rounds: 3
+        unit: "ms"
+        msg_unit: "KB"
+      - name: "Sign"
+        protocol_name: "ECDSA-2PC-Sign-2P"
+        n_rounds: 4
+        unit: "ms"
+        msg_unit: "KB"
+        variants: ["/1", "/4", "/16"]
+        variant_names: ["#Msg=1", "#Msg=4", "#Msg=16"]
+      - name: "Sign with Global Abort"
+        protocol_name: "ECDSA-2PC-Sign-With-Global-Abort-2P"
+        n_rounds: 4
+        unit: "ms"
+        msg_unit: "KB"
+        variants: ["/1", "/4", "/16"]
+        variant_names: ["#Msg=1", "#Msg=4", "#Msg=16"]
+  - category: "EdDSA MPC"
+    expansionsmpcs:
+      - name: "Keygen"
+        protocol_name: "Schnorr-MPC-KeyGen-MP"
+        n_rounds: 2
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"
+      - name: "Refresh"
+        protocol_name: "Schnorr-MPC-Refresh-MP"
+        n_rounds: 2
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"
+      - name: "Sign"
+        protocol_name: "Schnorr-MPC-Sign-MP"
+        n_rounds: 3
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"
+  - category: "ECDSA MPC"
+    expansionsmpcs:
+      - name: "Keygen"
+        protocol_name: "ECDSA-MPC-KeyGen-MP"
+        n_rounds: 2
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"
+      - name: "Refresh"
+        protocol_name: "ECDSA-MPC-Refresh-MP"
+        n_rounds: 2
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"
+      - name: "Sign"
+        protocol_name: "ECDSA-MPC-Sign-MP"
+        n_rounds: 9
+        n_parties: 4
+        unit: "ms"
+        msg_unit: "2KB"

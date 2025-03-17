@@ -1,0 +1,57 @@
+{{ define "simple-table" }}
+
+{{ range $table := .Tables }}
+<div class="shadow-md mb-4">
+<h3 class="text-xl font-bold mt-4 mb-2">{{ $table.Name}}</h3>
+<table class="w-full text-sm text-left rtl:text-right text-gray-500">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+    <tr>
+        {{ range $header := $table.HeaderStrings }}
+        <th scope="col" class="px-6 py-3">
+            {{ $header }}
+        </th>
+        {{ end }}
+    </tr>
+    </thead>
+    <tbody>
+    {{ range $row := $table.Rows }}
+    <tr class="bg-white border-bhover:bg-gray-50">
+        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+            {{ $row.Name }}
+        </th>
+        {{ range $cell := $row.Cells }}
+        <td class="px-6 py-4">
+            <div class="tooltip">
+                {{ $cell.Value }}
+                <div class="tooltiptext min-w-max text-left">
+                    <table>
+                        <tbody>
+                            <tr class="text-left">
+                                <th>Name</th>
+                                <td>{{$cell.Tooltip.Name}}</td>
+                            </tr>
+                            <tr>
+                                <th>Real Time</th>
+                                <td>{{$cell.Tooltip.RealTime}}</td>
+                            </tr>
+                            <tr>
+                                <th>Time Unit</th>
+                                <td>{{$cell.Tooltip.TimeUnit}}</td>
+                            </tr>
+                            <tr>
+                                <th>Iterations</th>
+                                <td>{{$cell.Tooltip.Iterations}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </td>
+        {{ end }}
+    </tr>
+    {{ end }}
+    </tbody>
+</table>
+</div>
+{{ end }}
+{{ end }}

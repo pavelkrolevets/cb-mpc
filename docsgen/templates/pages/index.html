@@ -1,0 +1,53 @@
+{{ define "title" }} CB MPC Benchmarks {{ end }}
+
+{{ define "content" }}
+<main class="container mx-auto pt-4 pb-4">
+    <div class="mb-8">
+        <h1 class="mb-4 font-bold leading-none tracking-tight text-gray-900 md:text-xl lg:text-xl">Benchmark Context</h1>
+        <ul class="space-y-1 text-gray-500 list-disc list-inside">
+            <li>
+                <b>Date:</b> {{ .Context.Date }}
+            </li>
+            <li>
+                <b>Commit:</b> {{ .Context.CommitSha }}
+            </li>
+            <li>
+                <b>Runner:</b> Github Actions Ubuntu Virtual machine (16 GB RAM, SSD Storage, x64)
+            </li>
+            <li>
+                <b>#CPU:</b> Our benchmarks are single threaded
+            </li>
+            <li>
+                <b>CPU mhz:</b> {{ .Context.MhzPerCpu }}
+            </li>
+        </ul>
+    </div>
+    <div x-data="{ {{ range $i, $ignore := .Benchmarks }} selected{{$i}}:false, {{end}} notused:0 }">
+        {{ range $i, $benchmark := .Benchmarks }}
+        <h3 id="benchmark-heading-{{$i}}">
+            <button type="button" @click="selected{{ $i }}=!selected{{ $i }}" class="flex items-center w-full p-5 font-medium rtl:text-right bg-gray-100 text-gray-500 border border-b-0 border-gray-200  focus:ring-4 focus:ring-blue-200 hover:bg-blue-100 gap-3">
+                <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
+                </svg>
+                <span>{{ $benchmark.Category }}</span>
+            </button>
+        </h3>
+        <div id="benchmark-body-{{$i}}" x-bind:class="selected{{ $i }} ? '' : 'hidden'" aria-labelledby="benchmark-heading-{{$i}}">
+            <div class="p-5 border border-b-0 border-gray-200">
+                <div class="relative overflow-x-auto">
+                    {{if $benchmark.Tables}}
+                        {{ template "simple-table" $benchmark }}
+                    {{else if $benchmark.Table2PCs}}
+                        {{ template "2pc-table" $benchmark }}
+                    {{else if $benchmark.TableMPCs}}
+                        {{ template "mpc-table" $benchmark }}
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+</main>
+{{ end }}
+
+

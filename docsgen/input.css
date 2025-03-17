@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* User styles */
+
+@layer base {
+    body {
+        @apply bg-white text-slate-800 font-sans;
+    }
+
+    main {
+        @apply h-screen;
+    }
+}
+
+@layer components {
+
+    /* The parent tooltip container */
+    .tooltip {
+        @apply relative inline-block cursor-pointer;
+    }
+
+    /* The tooltip text container */
+    .tooltip .tooltiptext {
+        @apply invisible absolute z-[1] bottom-[125%] left-1/2 ml-[-60px] w-[120px] bg-[#555] text-white text-center rounded-[5px] py-[5px] px-0 opacity-0 transition-opacity duration-300;
+    }
+
+    /* The tooltip arrow (pseudo-element) */
+    .tooltip .tooltiptext::after {
+        content: "";
+        @apply absolute top-full left-1/2 ml-[-5px] border-[5px] border-solid border-t-[#555] border-r-transparent border-b-transparent border-l-transparent;
+    }
+
+    /* Show the tooltip text on hover */
+    .tooltip:hover .tooltiptext {
+        @apply visible opacity-100;
+    }
+}

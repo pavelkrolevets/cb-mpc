@@ -1,0 +1,218 @@
+{{ define "mpc-table" }}
+
+{{ range $table := .TableMPCs }}
+<div class="shadow-md mb-4">
+    <!-- Alpine.js state: openMpc controls showing/hiding collapsed rows. -->
+    <div x-data="{ openMpc: false }">
+        <table class="w-full text-sm text-left text-gray-500">
+            <!-- Table Header -->
+            <thead class="text-xs uppercase bg-gray-50">
+                <tr>
+                    <!-- 1) Left label column header with table name -->
+                    <th scope="col" class="px-6 py-3 text-xl font-bold mt-4 mb-2">
+                        {{ $table.Name }}
+                    </th>
+                    <!-- 2) One column per party: P1..PN -->
+                    {{ range $p := until $table.NParties }}
+                    <th scope="col" class="px-6 py-3">P{{ inc $p }}</th>
+                    {{ end }}
+                </tr>
+            </thead>
+
+            <tbody>
+                <!-- 1) Always-visible row: 'Total Time' -->
+                <tr class="
+                    border-b$
+                    hover:bg-blue-100
+                    bg-blue-50$
+                    text-blue-800$
+                ">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        Total Time
+                    </th>
+                    <!-- Each party’s total-time cell -->
+                    {{ range $i, $cell := $table.TotalTimes }}
+                    <td class="px-6 py-4 font-medium whitespace-nowrap">
+                        <div class="tooltip">
+                            {{ $cell.Value }}
+                            {{ if $cell.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $cell.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $cell.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $cell.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $cell.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    {{ end }}
+                </tr>
+
+                <!-- 2) Collapsed rows for r rounds => each round has RoundTimes[r], Msgs[r] arrays of length NParties -->
+                {{ $numRounds := len $table.RoundTimes }}
+                {{ range $roundIdx, $rtRow := $table.RoundTimes }}
+                <!-- round i+1 row -->
+                <tr x-show="openMpc" class="
+                        border-b$
+                        hover:bg-green-100
+                        bg-green-50$
+                        text-green-800$
+                    ">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        round {{ inc $roundIdx }}
+                    </th>
+                    <!-- RoundTimes[roundIdx][party] -->
+                    {{ range $p, $cell := $rtRow }}
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ $cell.Value }}
+                            {{ if $cell.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $cell.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $cell.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $cell.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $cell.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    {{ end }}
+                </tr>
+
+                <!-- message i+1 row (smaller text) -->
+                <tr x-show="openMpc" class="
+                        bg-white$
+                        border-b$
+                        hover:bg-gray-50
+                        text-s opacity-80 leading-none
+                    ">
+                    <th scope="row" class="px-6 py-1 font-medium text-gray-900 whitespace-nowrap">
+                        message {{ inc $roundIdx }}
+                    </th>
+                    <!-- Msgs[roundIdx][party] -->
+                    {{ $msgRow := index $table.Msgs $roundIdx }}
+                    {{ range $p, $cell := $msgRow }}
+                    <td class="px-6 py-1">
+                        <div class="tooltip">
+                            {{ $cell.Value }}
+                            {{ if $cell.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $cell.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $cell.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $cell.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $cell.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    {{ end }}
+                </tr>
+                {{ end }}
+
+                <!-- 3) Final row => "output round" (also collapsed) -->
+                <tr x-show="openMpc" class="
+                        border-b$
+                        hover:bg-green-100
+                        bg-green-50$
+                        text-green-800$
+                    ">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                        Output Round
+                    </th>
+                    <!-- .OutputRound for each party -->
+                    {{ range $i, $cell := $table.OutputRound }}
+                    <td class="px-6 py-4">
+                        <div class="tooltip">
+                            {{ $cell.Value }}
+                            {{ if $cell.Tooltip.Name }}
+                            <div class="tooltiptext min-w-max text-left">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <th class="pr-2">Name</th>
+                                            <td>{{ $cell.Tooltip.Name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Real Time</th>
+                                            <td>{{ $cell.Tooltip.RealTime }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Time Unit</th>
+                                            <td>{{ $cell.Tooltip.TimeUnit }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Iterations</th>
+                                            <td>{{ $cell.Tooltip.Iterations }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{ end }}
+                        </div>
+                    </td>
+                    {{ end }}
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Centered toggle button to expand/collapse -->
+        <div class="flex justify-center mt-2">
+            <button type="button" @click="openMpc = !openMpc"
+                x-text="openMpc ? 'Hide round details' : 'Show round details'" class="inline-flex items-center mt-2 mb-4 px-3 py-2 text-sm font-medium 
+                     text-white bg-blue-500 rounded-lg hover:bg-blue-600 
+                     focus:ring-4 focus:outline-none focus:ring-blue-300">
+            </button>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ end }}

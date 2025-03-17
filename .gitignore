@@ -1,0 +1,10 @@
+# We generate the .a files here
+lib/
+docsgen/docs
+docsgen/tmp
+docsgen/render_app
+
+# General CMake files
+**build/
+node_modules/
+vendors/
