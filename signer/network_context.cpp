@@ -1,11 +1,8 @@
 #include "network_context.h"
 
-using namespace coinbase::mpc;
-
-namespace coinbase::testutils {
+namespace signer {
 
 void mpc_net_context_t::send(party_idx_t receiver, mem_t msg) {
-  std::cout << "Sending message to: " << receiver << "\n";
   auto rec = out[receiver];
   test_channel_t& rec_in = rec->in[index];
 
@@ -13,12 +10,10 @@ void mpc_net_context_t::send(party_idx_t receiver, mem_t msg) {
 }
 
 error_t mpc_net_context_t::receive(party_idx_t sender, mem_t& result) {
-  std::cout << "Receive message from: " << sender << "\n";
   return in[sender].receive(channel_sync, is_abort, result);
 }
 
 error_t mpc_net_context_t::receive_all(const std::vector<party_idx_t>& senders, std::vector<mem_t>& result) {
-  std::cout << "Receive all: " << "\n";
   int n = (int)senders.size();
   std::vector<mem_t> out(n);
   int received = 0;
@@ -57,4 +52,4 @@ void mpc_net_context_t::reset() {
   for (int i = 0; i < in.size(); i++) in[i].reset();
 }
 
-}  // namespace coinbase::testutils
+} 

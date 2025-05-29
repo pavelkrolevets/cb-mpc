@@ -96,6 +96,7 @@ add_subdirectory(src/cbmpc/core)
 add_subdirectory(src/cbmpc/crypto)
 add_subdirectory(src/cbmpc/zk)
 add_subdirectory(src/cbmpc/protocol)
+add_subdirectory(signer)
 
 # ------------- Tests ---------------------------
 
