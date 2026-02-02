@@ -18,7 +18,7 @@ target_sources(cbmpc_protocol  PRIVATE
 
   ec_dkg.cpp
   ecdsa_2p.cpp
-  ecdsa_mp.cpp
+  ecdsa_mp_steps.cpp
   schnorr_2p.cpp
   schnorr_mp.cpp
   eddsa.cpp
