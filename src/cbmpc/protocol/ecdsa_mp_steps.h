@@ -28,57 +28,6 @@ enum {
 
 typedef eckey::key_share_mp_t key_t;
 
-/**
- * @specs:
- * - ecdsa-mpc-spec | ECDSA-MPC-KeyGen-MP
- */
-error_t dkg(job_mp_t& job, ecurve_t curve, key_t& key, buf_t& sid);
-
-/**
- * @specs:
- * - ecdsa-mpc-spec | ECDSA-MPC-Refresh-MP
- */
-error_t refresh(job_mp_t& job, buf_t& sid, key_t& key, key_t& new_key);
-
-/**
- * @specs:
- * - ec-dkg-spec | EC-DKG-Threshold-MP
- */
-error_t threshold_dkg(job_mp_t& job, ecurve_t curve, buf_t& sid, const crypto::ss::ac_t ac,
-                      const party_set_t& quorum_party_set, key_t& key);
-
-/**
- * @specs:
- * - ec-dkg-spec | EC-Refresh-Threshold-MP
- */
-error_t threshold_refresh(job_mp_t& job, ecurve_t curve, buf_t& sid, const crypto::ss::ac_t ac,
-                          const party_set_t& quorum_party_set, key_t& key, key_t& new_key);
-
-/**
- * @specs:
- * - ecdsa-mpc-spec | ECDSA-MPC-Sign-MP
- * @notes:
- * - This function runs base OT internally which is not efficient and is only done for ease of use.
- *   The proper more efficient way is to generate Base OTs one outside this function, then during the run of the
- *   protocol, use OT Extension to generate extra values and output them to be used as base OT for the next execution of
- *   the protocol.
- */
-error_t sign(job_mp_t& job, key_t& key, mem_t msg, const party_idx_t sig_receiver,
-             const std::vector<std::vector<int>>& ot_role_map, buf_t& sig);
-
-/**
- * @specs:
- * - ecdsa-mpc-spec | ECDSA-MPC-Sign-MP
- * @notes:
- * - The difference between this function and the one above is that this function does not take `ot_role_map` as an
- * argument.
- * - This function runs base OT internally which is not efficient and is only done for ease of use.
- *   The proper more efficient way is to generate Base OTs one outside this function, then during the run of the
- *   protocol, use OT Extension to generate extra values and output them to be used as base OT for the next execution of
- *   the protocol.
- */
-error_t sign(job_mp_t& job, key_t& key, mem_t msg, const party_idx_t sig_receiver, buf_t& sig);
-
 // --- Step-wise sign API (same protocol as sign() above, split into rounds) ---
 
 /** Validates inputs and initializes ctx for step-wise sign. Call once before sign_step_1. */
