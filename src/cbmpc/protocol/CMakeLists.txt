@@ -10,6 +10,7 @@ target_sources(cbmpc_protocol  PRIVATE
 
   agree_random.cpp
   ot.cpp
+  ot_deterministic.cpp
 
   pve_base.cpp
   pve.cpp

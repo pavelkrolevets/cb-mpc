@@ -1,7 +1,7 @@
 #include "ecdsa_mp_steps.h"
 
 #include <cbmpc/crypto/ro.h>
-#include <cbmpc/protocol/ot.h>
+#include <cbmpc/protocol/ot_deterministic.h>
 #include <cbmpc/protocol/sid.h>
 #include <cbmpc/zk/zk_elgamal_com.h>
 #include <cbmpc/zk/zk_pedersen.h>
@@ -49,7 +49,7 @@ struct sign_step_2_ctx_t {
   std::unique_ptr<job_mp_t::uniform_msg_t<buf256_t>> h_gen;
   std::unique_ptr<job_mp_t::uniform_msg_t<buf256_t>> rho;
   std::unique_ptr<job_mp_t::uniform_msg_t<zk::uc_dl_t>> pi_s;
-  std::vector<mpc::ot_protocol_pvw_ctx_t> ot;
+  std::vector<mpc::ot_protocol_pvw_ctx_det_t> ot;
   std::vector<coinbase::bits_t> R_bits_i;
   std::vector<std::vector<std::array<bool, 4>>> R;  // theta x n
   std::vector<ecc_point_t> E_i;
@@ -199,14 +199,23 @@ error_t sign_step_1(job_mp_t& job, sign_ctx_t& ctx) {
   key_t& key = *c.key;
   mem_t msg = c.msg;
 
-  s1.sid_i = std::make_unique<job_mp_t::uniform_msg_t<buf_t>>(c.job, crypto::gen_random_bitlen(SEC_P_COM));
+  // Fixed (deterministic) values for reproducibility; derived from party index and domain strings.
+  static const std::string kStep1SidDomain("sign_step_1_sid");
+  static const std::string kStep1SiDomain("sign_step_1_s_i");
+  static const std::string kStep1ComRandDomain("sign_step_1_com_rand");
+  // s1.sid_i = std::make_unique<job_mp_t::uniform_msg_t<buf_t>>(c.job, crypto::gen_random_bitlen(SEC_P_COM));
+  buf_t sid_i_fixed = crypto::ro::hash_string(i, n, kStep1SidDomain).bitlen(SEC_P_COM);
+  s1.sid_i = std::make_unique<job_mp_t::uniform_msg_t<buf_t>>(c.job, std::move(sid_i_fixed));
   s1.h_consistency = std::make_unique<job_mp_t::uniform_msg_t<buf256_t>>(c.job, buf256_t());
   s1.h_consistency->msg = crypto::sha256_t::hash(msg, key.Q, key.Qis);
-
-  s1.s_i_val = bn_t::rand(q);
+  // s1.s_i_val = bn_t::rand(q);
+  bn_t s_i_val_fixed = crypto::ro::hash_number(i, n, kStep1SiDomain).mod(q);
+  s1.s_i_val = (s_i_val_fixed == 0) ? bn_t(1) : s_i_val_fixed;
   s1.Ei_gen = std::make_unique<job_mp_t::uniform_msg_t<ecc_point_t>>(c.job, s1.s_i_val * G);
   coinbase::crypto::commitment_t com(s1.sid_i->msg, job.get_pid(i));
-  com.gen(s1.Ei_gen->msg, c.peer_index);
+  // com.gen(s1.Ei_gen->msg, c.peer_index);
+  com.rand = crypto::ro::hash_string(i, n, kStep1ComRandDomain).bitlen256();
+  com.gen_with_set_rand(s1.Ei_gen->msg, c.peer_index);
   s1.c = std::make_unique<job_mp_t::uniform_msg_t<buf_t>>(c.job, com.msg);
   s1.com_rand = com.rand;
 
@@ -257,7 +266,7 @@ error_t sign_step_2(job_mp_t& job, sign_ctx_t& ctx) {
   }
 
   party_set_t ot_receivers = ot_receivers_for(i, n, ot_role_map);
-  auto ot_msg1 = job.inplace_msg<mpc::ot_protocol_pvw_ctx_t::msg1_t>([&s2](int j) { return s2.ot[j].msg1(); });
+  auto ot_msg1 = job.inplace_msg<mpc::ot_protocol_pvw_ctx_det_t::msg1_t>([&s2](int j) { return s2.ot[j].msg1(); });
   if (rv = plain_broadcast_and_pairwise_message(job, ot_receivers, ot_msg1, *s2.h_gen, *s1.Ei_gen, *s2.rho, *s2.pi_s))
     return rv;
   return SUCCESS;
@@ -285,9 +294,11 @@ error_t sign_step_3(job_mp_t& job, sign_ctx_t& ctx) {
   s2.E_i = s1.Ei_gen->all_received();
   s2.E = SUM(s2.E_i);
 
+  static const std::string kStep3RbitsDomain("sign_step_3_R_bits");
   for (int j = 0; j < n; j++) {
     if (ot_role_map[i][j] != ot_receiver) continue;
-    s2.R_bits_i[j] = crypto::gen_random_bits(4 * theta);
+    // s2.R_bits_i[j] = crypto::gen_random_bits(4 * theta);
+    s2.R_bits_i[j] = coinbase::bits_t::from_bin(crypto::ro::hash_string(i, n, j, kStep3RbitsDomain).bitlen(4 * theta));
     for (int l = 0; l < theta; l++)
       for (int t = 0; t < 4; t++) s2.R[l][j][t] = s2.R_bits_i[j][l * 4 + t];
   }
@@ -297,7 +308,7 @@ error_t sign_step_3(job_mp_t& job, sign_ctx_t& ctx) {
   }
 
   party_set_t ot_senders = ot_senders_for(i, n, ot_role_map);
-  auto ot_msg2 = job.inplace_msg<mpc::ot_protocol_pvw_ctx_t::msg2_t>([&s2](int j) { return s2.ot[j].msg2(); });
+  auto ot_msg2 = job.inplace_msg<mpc::ot_protocol_pvw_ctx_det_t::msg2_t>([&s2](int j) { return s2.ot[j].msg2(); });
   if (rv = plain_broadcast_and_pairwise_message(job, ot_senders, ot_msg2)) return rv;
   return SUCCESS;
 }
@@ -314,10 +325,20 @@ error_t sign_step_4(job_mp_t& job, sign_ctx_t& ctx) {
   const auto& ot_role_map = *c.ot_role_map;
   const int n_uc_elgamal_com_proofs = 4;
 
-  s4.k_i = bn_t::rand(q);
-  s4.rho_i = bn_t::rand(q);
-  s4.r_eK_i = bn_t::rand(q);
-  s4.r_eRHO_i = bn_t::rand(q);
+  static const std::string kStep4KiDomain("sign_step_4_k_i");
+  static const std::string kStep4RhoiDomain("sign_step_4_rho_i");
+  static const std::string kStep4ReKiDomain("sign_step_4_r_eK_i");
+  static const std::string kStep4ReRHOiDomain("sign_step_4_r_eRHO_i");
+  // s4.k_i = bn_t::rand(q);
+  bn_t k_i_fixed = crypto::ro::hash_number(i, n, kStep4KiDomain).mod(q);
+  s4.k_i = (k_i_fixed == 0) ? bn_t(1) : k_i_fixed;
+  // s4.rho_i = bn_t::rand(q);
+  bn_t rho_i_fixed = crypto::ro::hash_number(i, n, kStep4RhoiDomain).mod(q);
+  s4.rho_i = (rho_i_fixed == 0) ? bn_t(1) : rho_i_fixed;
+  // s4.r_eK_i = bn_t::rand(q);
+  s4.r_eK_i = crypto::ro::hash_number(i, n, kStep4ReKiDomain).mod(q);
+  // s4.r_eRHO_i = bn_t::rand(q);
+  s4.r_eRHO_i = crypto::ro::hash_number(i, n, kStep4ReRHOiDomain).mod(q);
   s4.eK_i =
       std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(c.job, elg_com_t::commit(s2.E, s4.k_i).rand(s4.r_eK_i));
   s4.eRHO_i =
@@ -345,7 +366,7 @@ error_t sign_step_4(job_mp_t& job, sign_ctx_t& ctx) {
 
   party_set_t ot_receivers = ot_receivers_for(i, n, ot_role_map);
   auto ot_msg3 =
-      job.inplace_msg<mpc::ot_protocol_pvw_ctx_t::msg3_delta_t>([&s2](int j) { return s2.ot[j].msg3_delta(); });
+      job.inplace_msg<mpc::ot_protocol_pvw_ctx_det_t::msg3_delta_t>([&s2](int j) { return s2.ot[j].msg3_delta(); });
   if (rv = plain_broadcast_and_pairwise_message(job, ot_receivers, ot_msg3, *s4.eK_i, *s4.eRHO_i, *s4.pi_eK,
                                                 *s4.pi_eRHO))
     return rv;
@@ -389,9 +410,11 @@ error_t sign_step_5(job_mp_t& job, sign_ctx_t& ctx) {
   s5.s_ot_sender.resize(n);
   s5.s_ot_receiver.resize(n);
 
+  static const std::string kStep5SeedDomain("sign_step_5_seed");
   for (int j = 0; j < n; j++) {
     if (ot_role_map[i][j] != ot_receiver) continue;
-    crypto::gen_random(s5.seed->msgs[j]);
+    // crypto::gen_random(s5.seed->msgs[j]);
+    s5.seed->msgs[j] = crypto::ro::hash_string(i, n, j, kStep5SeedDomain).bitlen256();
     crypto::drbg_aes_ctr_t drbg(s5.seed->msgs[j]);
     bn_t a[] = {s4.k_i, s4.rho_i, s4.x_i, s4.rho_i};
     std::array<bn_t, 4> v[512];  // theta max
@@ -472,8 +495,14 @@ error_t sign_step_6(job_mp_t& job, sign_ctx_t& ctx) {
                  });
   }
 
-  s6.r_eRHO_K = bn_t::rand(q);
-  s6.r_eRHO_X = bn_t::rand(q);
+  static const std::string kStep6ReRHO_KDomain("sign_step_6_r_eRHO_K");
+  static const std::string kStep6ReRHO_XDomain("sign_step_6_r_eRHO_X");
+  static const std::string kStep6RFeRHO_KDomain("sign_step_6_r_F_eRHO_K");
+  static const std::string kStep6RFeRHO_XDomain("sign_step_6_r_F_eRHO_X");
+  // s6.r_eRHO_K = bn_t::rand(q);
+  s6.r_eRHO_K = crypto::ro::hash_number(i, n, kStep6ReRHO_KDomain).mod(q);
+  // s6.r_eRHO_X = bn_t::rand(q);
+  s6.r_eRHO_X = crypto::ro::hash_number(i, n, kStep6ReRHO_XDomain).mod(q);
   s6.eRHO_K = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
       c.job, elg_com_t::commit(s2.E, s6.rho_k_i).rand(s6.r_eRHO_K));
   s6.eRHO_X = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
@@ -485,8 +514,10 @@ error_t sign_step_6(job_mp_t& job, sign_ctx_t& ctx) {
 
   elg_com_t eK = SUM(s4.eK_i->all_received());
   elg_com_t eX = elg_com_t(c.curve.generator(), s2.E + key.Q);
-  s6.r_F_eRHO_K = bn_t::rand(q);
-  s6.r_F_eRHO_X = bn_t::rand(q);
+  // s6.r_F_eRHO_K = bn_t::rand(q);
+  s6.r_F_eRHO_K = crypto::ro::hash_number(i, n, kStep6RFeRHO_KDomain).mod(q);
+  // s6.r_F_eRHO_X = bn_t::rand(q);
+  s6.r_F_eRHO_X = crypto::ro::hash_number(i, n, kStep6RFeRHO_XDomain).mod(q);
   s6.F_eRHO_K = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
       c.job, elg_com_t::rerand(s2.E, s4.rho_i * eK).rand(s6.r_F_eRHO_K));
   s6.F_eRHO_X = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
@@ -542,10 +573,18 @@ error_t sign_step_7(job_mp_t& job, sign_ctx_t& ctx) {
 
   s7.Y_eRHO_K = SUM(s6.F_eRHO_K->all_received()) - SUM(s6.eRHO_K->all_received());
   s7.Y_eRHO_X = SUM(s6.F_eRHO_X->all_received()) - SUM(s6.eRHO_X->all_received());
-  s7.r_Z_eRHO_K = bn_t::rand(q);
-  s7.r_Z_eRHO_X = bn_t::rand(q);
-  s7.o_Z_eRHO_K = bn_t::rand(q);
-  s7.o_Z_eRHO_X = bn_t::rand(q);
+  static const std::string kStep7RZeRHO_KDomain("sign_step_7_r_Z_eRHO_K");
+  static const std::string kStep7RZeRHO_XDomain("sign_step_7_r_Z_eRHO_X");
+  static const std::string kStep7OZeRHO_KDomain("sign_step_7_o_Z_eRHO_K");
+  static const std::string kStep7OZeRHO_XDomain("sign_step_7_o_Z_eRHO_X");
+  // s7.r_Z_eRHO_K = bn_t::rand(q);
+  s7.r_Z_eRHO_K = crypto::ro::hash_number(i, n, kStep7RZeRHO_KDomain).mod(q);
+  // s7.r_Z_eRHO_X = bn_t::rand(q);
+  s7.r_Z_eRHO_X = crypto::ro::hash_number(i, n, kStep7RZeRHO_XDomain).mod(q);
+  // s7.o_Z_eRHO_K = bn_t::rand(q);
+  s7.o_Z_eRHO_K = crypto::ro::hash_number(i, n, kStep7OZeRHO_KDomain).mod(q);
+  // s7.o_Z_eRHO_X = bn_t::rand(q);
+  s7.o_Z_eRHO_X = crypto::ro::hash_number(i, n, kStep7OZeRHO_XDomain).mod(q);
   s7.Z_eRHO_K_i = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
       c.job, elg_com_t::rerand(s2.E, s7.o_Z_eRHO_K * s7.Y_eRHO_K).rand(s7.r_Z_eRHO_K));
   s7.Z_eRHO_X_i = std::make_unique<job_mp_t::uniform_msg_t<elg_com_t>>(
@@ -716,5 +755,68 @@ error_t sign_step_10(job_mp_t& job, sign_ctx_t& ctx, buf_t& sig) {
   if (rv = pub.verify(c.msg, sig)) return rv;
   return SUCCESS;
 }
+
+// Deterministic hash of each step's output for comparison in tests (party 0's view).
+error_t sign_step_result_hash(const sign_ctx_t& ctx, int step, buf256_t& out) {
+  const auto& c = ctx.common;
+  const int i = c.i;
+  switch (step) {
+    case 1: {
+      const auto& s1 = ctx.step1;
+      out = crypto::sha256_t::hash(s1.sid_i->msg, s1.c->msg, s1.h_consistency->msg, s1.Ei_gen->msg, s1.com_rand);
+      return SUCCESS;
+    }
+    case 2: {
+      const auto& s2 = ctx.step2;
+      out = crypto::sha256_t::hash(s2.sid, s2.h_gen->msg, s2.rho->msg);
+      return SUCCESS;
+    }
+    case 3: {
+      const auto& s2 = ctx.step2;
+      out = crypto::sha256_t::hash(s2.E, s2.E_i[static_cast<size_t>(i)]);
+      return SUCCESS;
+    }
+    case 4: {
+      const auto& s4 = ctx.step4;
+      out = crypto::sha256_t::hash(s4.k_i, s4.rho_i, s4.eK_i->msg, s4.eRHO_i->msg);
+      return SUCCESS;
+    }
+    case 5: {
+      const auto& s2 = ctx.step2;
+      const auto& s4 = ctx.step4;
+      const auto& s5 = ctx.step5;
+      // Hash the inputs that feed step-5 view (view.final() is used in step 7, so we don't call it here).
+      out = crypto::sha256_t::hash(s2.E_i, s4.eK_i->all_received(), s4.eRHO_i->all_received(), s4.pi_eK->all_received(),
+                                   s4.pi_eRHO->all_received(), s5.X);
+      return SUCCESS;
+    }
+    case 6: {
+      const auto& s6 = ctx.step6;
+      out = crypto::sha256_t::hash(s6.rho_k_i, s6.rho_x_i, s6.eRHO_K->msg, s6.eRHO_X->msg, s6.F_eRHO_K->msg,
+                                   s6.F_eRHO_X->msg);
+      return SUCCESS;
+    }
+    case 7: {
+      const auto& s7 = ctx.step7;
+      out = crypto::sha256_t::hash(s7.h->msg, s7.Z_eRHO_K_i->msg, s7.Z_eRHO_X_i->msg);
+      return SUCCESS;
+    }
+    case 8: {
+      const auto& s8 = ctx.step8;
+      out = crypto::sha256_t::hash(s8.h2->msg, s8.Z_eRHO_K, s8.Z_eRHO_X, s8.W_eRHO_K_i->msg, s8.W_eRHO_X_i->msg,
+                                   s8.K_i->msg);
+      return SUCCESS;
+    }
+    case 9: {
+      const auto& s9 = ctx.step9;
+      out = crypto::sha256_t::hash(s9.K, s9.r, s9.m, s9.beta->msg, s9.rho_k->msg);
+      return SUCCESS;
+    }
+    default:
+      return coinbase::error(E_BADARG, "sign_step_result_hash: step must be 1..9");
+  }
+}
+
+void sign_step_10_result_hash(mem_t sig, buf256_t& out) { out = crypto::sha256_t::hash(sig); }
 
 }  // namespace coinbase::mpc::ecdsampc

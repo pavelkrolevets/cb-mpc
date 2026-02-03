@@ -56,6 +56,10 @@ error_t sign_step_9(job_mp_t& job, sign_ctx_t& ctx);
 /** Step 10: Output — sig_receiver verifies and writes sig. */
 error_t sign_step_10(job_mp_t& job, sign_ctx_t& ctx, buf_t& sig);
 
+/** Deterministic hash of step output (for testing). step 1..9 use ctx; step 10 use sig. */
+error_t sign_step_result_hash(const sign_ctx_t& ctx, int step, buf256_t& out);
+void sign_step_10_result_hash(mem_t sig, buf256_t& out);
+
 static party_set_t ot_senders_for(int i, int peers_count, std::vector<std::vector<int>> ot_role_map) {
   party_set_t s;
   for (int j = 0; j < peers_count; j++) {
