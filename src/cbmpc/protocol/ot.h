@@ -131,9 +131,12 @@ struct ot_ext_protocol_ctx_t {
   /**
    * @specs:
    * - oblivious-transfer-spec | OTExtension-1-RtoS-1P
+   * @param fixed_r_extra If non-null, must have count() == kappa+pad (receiver padding); used instead of
+   *        gen_random_bits for deterministic tests. Production callers pass nullptr.
    */
   error_t step1_R2S(mem_t sid, const std::vector<buf_t>& sigma0, const std::vector<buf_t>& sigma1,
-                    const coinbase::bits_t& r, int l);
+                    const coinbase::bits_t& r, int l,
+                    const coinbase::bits_t* fixed_r_extra = nullptr);
   /**
    * @specs:
    * - oblivious-transfer-spec | OTExtension-2-StoR-1P

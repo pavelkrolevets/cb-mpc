@@ -188,7 +188,8 @@ static void ot_matrix_transpose(const h_matrix_256rows_t& h_src, v_matrix_256col
 // ------------------------- ot_ext_protocol_ctx_t ---------------------
 
 error_t ot_ext_protocol_ctx_t::step1_R2S(mem_t sid, const std::vector<buf_t>& sigma0, const std::vector<buf_t>& sigma1,
-                                         const coinbase::bits_t& rr, int l) {
+                                         const coinbase::bits_t& rr, int l,
+                                         const coinbase::bits_t* fixed_r_extra) {
   if (int(sigma0.size()) != u) return coinbase::error(E_BADARG);
   if (int(sigma1.size()) != u) return coinbase::error(E_BADARG);
 
@@ -197,8 +198,13 @@ error_t ot_ext_protocol_ctx_t::step1_R2S(mem_t sid, const std::vector<buf_t>& si
   int m = rr.count();
   // make m a multiple of 128 bits
   int pad = (m & 127) ? 128 - (m & 127) : 0;
+  int extra_bits = kappa + pad;
 
-  r = rr + crypto::gen_random_bits(kappa + pad);
+  if (fixed_r_extra && fixed_r_extra->count() == extra_bits) {
+    r = rr + *fixed_r_extra;
+  } else {
+    r = rr + crypto::gen_random_bits(extra_bits);
+  }
 
   h_matrix_256rows_t T_tmp;
   T_tmp.alloc(m + kappa + pad);
